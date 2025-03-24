@@ -1,4 +1,6 @@
+  import { useState } from "react";
 export default function CommentForm(){
+    const [isReply,, setIsReply] = useState(true)
     return (
       <form
         className=" relative flex flex-wrap md:justify-between p-[20px] gap-[10px] w-auto max-w-[800px] border-1 border-solid border-[#b6b3b3] rounded-[6px] "

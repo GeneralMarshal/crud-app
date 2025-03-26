@@ -1,26 +1,11 @@
 import { useState } from "react";
 
-export default function Counter( {isHorizontal, score}){
-    const [count, setCount] = useState(score);
-    const[vote, setVote] = useState(null)
+export default function Counter( {isHorizontal, score, handleVote, vote}){
     const [isUserComment, setIsUserComment] = useState(true)
     
 
 
-    function handleVote(type){
-       if ( vote === null){
-            setCount((prev) => ( type === "upvote" ? prev + 1 : prev - 1))
-            setVote(type)
-        }
-        else if(vote === type){
-            setCount((prev) => ( vote === "upvote" ? prev - 1 : prev + 1))
-            setVote(null)
-        }
-        
-        else {setCount((prev) => (vote === "upvote" ? prev - 2 : prev + 2));
-            setVote(type)}
 
-    }
 
     return (
       <div
@@ -38,7 +23,7 @@ export default function Counter( {isHorizontal, score}){
         </span>
 
         <span className={`flex w-full justify-center text-[#393c8b] text-md ${isHorizontal ? "rotate-90" : ""}`}>
-          {count}
+          {score}
         </span>
 
         <span

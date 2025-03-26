@@ -2,22 +2,41 @@
 
 import Counter from "./Counter";
 import CommentActions from "./CommentActions";
-import { useState } from "react";
+import { use, useState } from "react";
 
 
 
 
 
 
-export default function CommentCard({ comment, isreply }){
+export default function CommentCard({ comment, isreply, score, setComment ,onVote, updateScore }){
     const[isCurrentUser, setIsCurrentUser] = useState(false)
+    const [vote, setVote] = useState(null);
+
+        function handleVote(type) {
+          if (vote === null) {
+            onVote( type === "upvote" ? +1 : -1)
+            setVote(type);
+          } else if (vote === type) {
+            onVote( type === "upvote" ? -1 : +1)
+            setVote(null);
+          } else {
+            onVote( type === "upvote" ? 2 : -2)
+            setVote(type);
+          }
+        }
   
     return (
       <article className="max-w-[800px] mt-[10px] ">
         <div className=" flex px-[12px] pt-[12px] pb-[0px] md:p-[20px] items-center border border-solid border-[#b6b3b3] w-full gap-[20px] rounded-[5px]">
           {/* counter for lager screens */}
           <div className="hidden md:flex">
-            <Counter score={comment.score} />
+            <Counter
+              score={score}
+              handleVote={handleVote}
+              vote={vote}
+              onVote={(delta) => onVote(comment.id, delta)}
+            />
           </div>
           <div className="relative ">
             {/* user image details date of publication edit or reply button */}
@@ -50,22 +69,35 @@ export default function CommentCard({ comment, isreply }){
               </p>
             </div>
             <div className=" flex md:hidden">
-              <Counter isHorizontal={true} score={comment.score} />
+              <Counter
+                isHorizontal={true}
+                score={score}
+                handleVote={handleVote}
+                vote={vote}
+                onVote={(delta) => onVote(comment.id, delta)}
+              />
             </div>
           </div>
         </div>
         <div className=" mt-[20px] flex flex-col gap-[5px] ml-[100px]">
-          {comment.replies &&
-            comment.replies.length > 0 &&
-            comment.replies.map((comment) => {
+          {
+            Array.isArray(comment.replies) && comment.replies.length > 0 &&
+            comment.replies.map((reply) =>
+            {
               return (
                 <CommentCard
-                  key={comment.id}
-                  comment={comment}
+                  key={reply.id}
                   isreply={true}
+                  comment={reply}
+                  score={reply.score}
+                  updateScore={updateScore}
+                  onVote={(delta) => onVote(reply.id, delta)}
                 />
               );
-            })}
+            })
+
+          }
+      
         </div>
       </article>
     );

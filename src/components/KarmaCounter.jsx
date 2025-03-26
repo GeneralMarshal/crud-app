@@ -34,7 +34,7 @@ export default function KarmaCounter(){
     return (
       <div className=" flex flex-col gap-[5px]">
         {comments.map((comment) => {
-          return <CommentCard key={comment.id} isreply={false} score={comment.score} comment={comment} updateScore={updateScore} onVote={(delta) => onVote(comment.id,delta)}/>;
+          return <CommentCard key={comment.id} isreply={false} score={comment.score} comment={comment} updateScore={updateScore} onVote={onVote} id={comment.id}/>;
         })}
 
       </div>

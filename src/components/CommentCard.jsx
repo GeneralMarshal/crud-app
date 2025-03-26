@@ -9,21 +9,22 @@ import { use, useState } from "react";
 
 
 
-export default function CommentCard({ comment, isreply, score, setComment ,onVote, updateScore }){
+export default function CommentCard({ comment, isreply, score, setComment ,onVote, updateScore, id }){
     const[isCurrentUser, setIsCurrentUser] = useState(false)
     const [vote, setVote] = useState(null);
 
-        function handleVote(type) {
+        function handleVote(id, type) {
           if (vote === null) {
-            onVote( type === "upvote" ? +1 : -1)
+            onVote(id, type === "upvote" ? +1 : -1);
             setVote(type);
           } else if (vote === type) {
-            onVote( type === "upvote" ? -1 : +1)
+            onVote(id, type === "upvote" ? -1 : +1);
             setVote(null);
           } else {
-            onVote( type === "upvote" ? 2 : -2)
+            onVote(id, type === "upvote" ? 2 : -2)
             setVote(type);
           }
+          console.log(type)
         }
   
     return (
@@ -35,7 +36,8 @@ export default function CommentCard({ comment, isreply, score, setComment ,onVot
               score={score}
               handleVote={handleVote}
               vote={vote}
-              onVote={(delta) => onVote(comment.id, delta)}
+              onVote={onVote}
+              id={comment.id}
             />
           </div>
           <div className="relative ">
@@ -70,20 +72,20 @@ export default function CommentCard({ comment, isreply, score, setComment ,onVot
             </div>
             <div className=" flex md:hidden">
               <Counter
-                isHorizontal={true}
+              isHorizontal={true}
                 score={score}
                 handleVote={handleVote}
                 vote={vote}
-                onVote={(delta) => onVote(comment.id, delta)}
+                onVote={onVote}
+                id={comment.id}
               />
             </div>
           </div>
         </div>
         <div className=" mt-[20px] flex flex-col gap-[5px] ml-[100px]">
-          {
-            Array.isArray(comment.replies) && comment.replies.length > 0 &&
-            comment.replies.map((reply) =>
-            {
+          {Array.isArray(comment.replies) &&
+            comment.replies.length > 0 &&
+            comment.replies.map((reply) => {
               return (
                 <CommentCard
                   key={reply.id}
@@ -91,13 +93,11 @@ export default function CommentCard({ comment, isreply, score, setComment ,onVot
                   comment={reply}
                   score={reply.score}
                   updateScore={updateScore}
-                  onVote={(delta) => onVote(reply.id, delta)}
+                  onVote={onVote}
+                  id={reply.id}
                 />
               );
-            })
-
-          }
-      
+            })}
         </div>
       </article>
     );

@@ -7,101 +7,74 @@ import { useState, useEffect  } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 export default function KarmaCounter(){
-  const [comments, setComments] = useState(
-    [...data.comments].map((comment) => ({
-      ...comment,
-      replies: [...comment.replies].sort((a, b) => b.score - a.score),
-    })).sort((a, b) => b.score - a.score)
-  );
- 
-  const [replyText, setReplyText] = useState();
-  const [replyingTo, setReplyingto] = useState()
-  
-
-  function updateReply(){
-    setComments((comments) => {
-      const newReply = comments.map((comment)=>{
-        if (replyingTo === comment.id){
-          return {
-            ...comment,
-            replies: [
-              ...comment.replies,
-              {
-                id: uuidv4(),
-                content: replyText,
-                createdAt: new Date().toISOString(),
-                score: 5,
-                replyingTo: comment.user.username,
-                user: data.currentUser,
-              },
-            ],
-          };
-        } else {return comment}
-      })
-      return newReply
-    })
-    setReplyText("")
-    setReplyingto(null)
+  const USER = {
+    image: { png: '/images/avatars/image-juliusomo.png', webp: '/images/avatars/image-juliusomo.png' },
+    username: 'juliusomo'
   }
 
-    
+  const [comments, setComments] = useState([]);
+ 
+  const [replyText, setReplyText] = useState('');
+  const [replyingTo, setReplyingto] = useState(null);
+  const [replyusername, setReplyUsername] = useState(null);
   
-  // useEffect(()=>{
-  //   setComments(
-  //     (prevComments) => [...prevComments].slice().sort( (a, b) => b.score - a.score) 
-      
-  //   )
-  // }, [comments])
+  useEffect(()=>{
+    getComments()
+  }, []);
 
+  async function getComments(){
+    console.log(data.comments);
+    setComments(data.comments);
+  }
 
-//     function updateScore(id, delta) {
-//       setComments((comments) =>{
-//              const updatedComments = comments.map((comment) => {
-//                 if (id === comment.id) {
-//                   return { ...comment, score: comment.score + delta };
-//                 } else if (Array.isArray(comment.replies)) {
-//                   const updatedReplies = comment.replies.map((reply) => {
-//                     return id === reply.id
-//                       ? { ...reply, score: reply.score + delta }
-//                       : reply;
-//                   }).sort((a,b) => b.score - a.score);
-//                   return { ...comment, replies: updatedReplies };
-//                 }
-//                 return comment;
-//               });
-//               return([...updatedComments].sort((a,b) => b.score - a.score))
-//       }
+  function handleReply(index){
+    console.log(index);
+    setReplyingto(index);
+  }
 
-//   );
-// }
-    function updateScore(id, delta){
-      setComments((comments) =>{
-        const updatedComments = comments.map((comment) =>{
-          if (id === comment.id){
-            return {...comment, score: comment.score + delta}
-          }
-          else if (Array.isArray(comment.replies)){
-            const updatedReplies = comment.replies.map((reply)=>{
-             return reply.id === id ? { ...reply, score:reply.score + delta} : reply
-          }).sort((a,b) => b.score - a.score)
-          return { ...comment, replies: updatedReplies };
-          }
+  function updateReply(){
+    const currentComments = [...comments];
+    
+    currentComments[replyingTo].replies.push({
+      id: uuidv4(),
+      content: replyText,
+      createdAt: new Date().toISOString(),
+      score: 0,
+      replyingTo: replyusername ? replyusername : comments[replyingTo].user.username,
+      user: USER,
+    });
+
+    setReplyText("")
+    setReplyingto(null);
+    setReplyUsername(null);
+  }
+
+  //[1, 4]
+  function updateComment(newComment, indexArr){
+    if(indexArr.length===1){
+      const currentComments = [...comments]; 
+      currentComments[indexArr[0]] = newComment;
+      setComments(currentComments);
+    }else{ //Else it is 2
+      const currentComments = [...comments]; 
+      currentComments[indexArr[0]].replies[indexArr[1]] = newComment;
+      setComments(currentComments);
+    }
+    
+  }
+  
+  return (
+    <div className=" flex flex-col gap-[5px]">
+      {
+        comments.map((comment, index) => {
+          return  <CommentCard 
+                    key={comment.id} index={index} isreply={false} updateComment={updateComment}
+                    comment={comment} id={comment.id} replyText={replyText} handleReply={()=>{ handleReply(index); }}
+                    setReplyText={setReplyText} updateReply={updateReply} replyingTo={replyingTo} setReplyingto={setReplyingto}
+                    setReplyUsername={setReplyUsername}
+                  />;
         })
-        return [...updatedComments].sort((a,b) => b.score - a.score)
-      }
-      )
-    }
-
-    function onVote(id, delta){
-      console.log("onvote called with:", {id, delta})
-      updateScore(id,delta)
-    }
-    return (
-      <div className=" flex flex-col gap-[5px]">
-        {comments.map((comment) => {
-          return <CommentCard key={comment.id} isreply={false} score={comment.score} comment={comment} updateScore={updateScore} onVote={onVote} id={comment.id} replyText={replyText} setReplyText={setReplyText} updateReply={updateReply} replyingTo={replyingTo} setReplyingto={setReplyingto}/>;
-        })}
-
+      }    
       </div>
-    );
+  );
 }

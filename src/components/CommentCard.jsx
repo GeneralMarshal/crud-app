@@ -3,36 +3,54 @@
 import Counter from "./Counter";
 import CommentActions from "./CommentActions";
 import CommentForm from "./CommentForm";
-import { use, useState } from "react";
+import { useState } from "react";
 
 
 
 
 
 
-export default function CommentCard({ comment, isreply, score, setComment ,onVote, updateScore, id, handleReply, replyText, setReplyText, updateReply, replyingTo, setReplyingto }){
+export default function CommentCard({ index, parentIndex, comment, isreply, score, updateComment, onVote, id, handleReply, replyText, setReplyText, updateReply, replyingTo, setReplyingto, setReplyUsername }){
     const [isCurrentUser, setIsCurrentUser] = useState(false)
     const [vote, setVote] = useState(null);
 
+    function upvote(){
+      console.log(isreply)
+      
+      if(isreply){
+        console.log([parentIndex, index]);
+        const updatedComment = comment;
+        updatedComment.score = comment.score+1;
+        updateComment(updatedComment, [parentIndex, index]);
+      }else{
+        const updatedComment = comment;
+        updatedComment.score = comment.score+1;
+        updateComment(updatedComment, [index]);
+      }
+      
+    }
 
+    function downvote(){
+      if(isreply){
+        const updatedComment = comment;
+        updatedComment.score = comment.score-1;
+        updateComment(updatedComment, [parentIndex, index]);
+      }else{
+        const updatedComment = comment;
+        updatedComment.score = comment.score-1;
+        updateComment(updatedComment, [index]);
+      }
+    }
 
-        function handleVote(id, type) {
-          if (vote === null) {
-            onVote(id, type === "upvote" ? +1 : -1);
-            setVote(type);
-          } else if (vote === type) {
-            onVote(id, type === "upvote" ? -1 : +1);
-            setVote(null);
-          } else {
-            onVote(id, type === "upvote" ? 2 : -2)
-            setVote(type);
-          }
-          console.log(type)
-        }
+    function handleReplyForReplies(replyIndex){
+      console.log(comment);
+      const replyusername = comment.replies[replyIndex].user.username;
 
-          function handleReply(e) {
-            setReplyingto(comment.id);
-          }
+      setReplyUsername(replyusername);
+      console.log('hey');
+
+      handleReply();
+    }
 
 
     return (
@@ -41,11 +59,11 @@ export default function CommentCard({ comment, isreply, score, setComment ,onVot
           {/* counter for lager screens */}
           <div className="hidden md:flex ">
             <Counter
-              score={score}
-              handleVote={handleVote}
+              score={comment.score}
+              upvote={upvote}
+              downvote={downvote}
               vote={vote}
               onVote={onVote}
-              id={comment.id}
             />
           </div>
           <div className="relative w-full">
@@ -63,6 +81,7 @@ export default function CommentCard({ comment, isreply, score, setComment ,onVot
 
             {/* the reply is for comments that isn't mine */}
             <CommentActions isCurrentUser={isCurrentUser} replyingTo={replyingTo} handleReply={handleReply}/>
+           
             <div>
               <p className="text-md text-[gray] leading-5">
                 {/* Impressive! Though it seems the drag feature could be improved.
@@ -78,38 +97,50 @@ export default function CommentCard({ comment, isreply, score, setComment ,onVot
                 {comment.content}
               </p>
             </div>
+
             <div className=" flex md:hidden">
               <Counter
                 isHorizontal={true}
                 score={score}
-                handleVote={handleVote}
                 vote={vote}
                 onVote={onVote}
-                id={comment.id}
+                upvote={upvote}
+                downvote={downvote}
               />
             </div>
           </div>
         </div>
 
         <div className=" mt-[20px] flex flex-col gap-[5px] ml-[100px]">
-          {replyingTo === id ? <CommentForm replyText={replyText} setReplyText={setReplyText} updateReply={updateReply}/> : "" }
+          {
+            (replyingTo === (parentIndex ? parentIndex : index)) && !isreply ? 
+            <CommentForm replyText={replyText} setReplyText={setReplyText} updateReply={updateReply}/> : "" 
+          }
 
-          {Array.isArray(comment.replies) &&
-            comment.replies.length > 0 &&
-            comment.replies.map((reply) => {
-              return (
-                <CommentCard
-                  key={reply.id}
-                  isreply={true}
-                  comment={reply}
-                  score={reply.score}
-                  updateScore={updateScore}
-                  onVote={onVote}
-                  id={reply.id}
-                  replyText={replyText} setReplyText={setReplyText} updateReply={updateReply} replyingTo={replyingTo} setReplyingto={setReplyingto}
-                />
-              );
-            })}
+          {
+            Array.isArray(comment.replies) &&
+              comment.replies.length > 0 &&
+              comment.replies.map((reply, replyIndex) => {
+                return (
+                  <CommentCard
+                    key={reply.id}
+                    isreply={true}
+                    comment={reply}
+                    id={reply.id}
+                    replyText={replyText} 
+                    setReplyText={setReplyText} 
+                    updateReply={updateReply} 
+                    replyingTo={replyingTo} 
+                    setReplyingto={setReplyingto}
+                    setReplyUsername={setReplyUsername}
+                    handleReply={()=>{ handleReplyForReplies(replyIndex); }}
+                    index={replyIndex}
+                    parentIndex={index}
+                    updateComment={updateComment}
+                  />
+                );
+              })
+          }
         </div>
       </article>
     );

@@ -1,11 +1,7 @@
 import { useState } from "react";
 
-export default function Counter( {isHorizontal, score, handleVote, vote, id}){
+export default function Counter( {isHorizontal, score, upvote, downvote, vote}){
     const [isUserComment, setIsUserComment] = useState(true)
-    
-
-
-
 
     return (
       <div
@@ -17,7 +13,7 @@ export default function Counter( {isHorizontal, score, handleVote, vote, id}){
           className={` flex w-full justify-center text-[#393c8b] text-md ${
             vote === "upvote" ? "bg-[green]" : ""
           }`}
-          onClick={() => handleVote(id, "upvote")}
+          onClick={upvote}
         >
           +
         </span>
@@ -30,7 +26,7 @@ export default function Counter( {isHorizontal, score, handleVote, vote, id}){
           className={` flex w-full justify-center text-[#393c8b] text-md ${
             (vote === "downvote" ? "bg-[red]" : "") + (isHorizontal ? "rotate-90" : "")
           }`}
-          onClick={() => handleVote(id, "downvote")}
+          onClick={downvote}
         >
           -
         </span>

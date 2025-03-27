@@ -1,8 +1,6 @@
-import { useState } from "react";
 import data from  "../data/data.json"
 
-export default function CommentForm( {replyText, setReplyText, updateReply}){
-    const [isReply, setIsReply] = useState(true)
+export default function CommentForm( {setReplyText, updateReply}){
     const currentUser = data.currentUser
     return (
       <form
@@ -16,11 +14,13 @@ export default function CommentForm( {replyText, setReplyText, updateReply}){
           className=" hidden md:flex w-[35px] h-[35px]"
           alt="user-avatar"
         />
+        
         <textarea
           placeholder="Add a comment..."
           className=" border-solid border-1 flex-1 border-[#b6b3b3] rounded-[6px] w-full h-[100px] px-[15px] py-[10px] text-sm "
           onChange={(e)=>{setReplyText(e.target.value)}}
         ></textarea>
+
         <div className="flex justify-between w-[100%] md:w-auto">
           {/* image for smaller screens */}
           <img
